@@ -1,206 +1,286 @@
--- // Game: https://roblox.com/games/2788229376/
-
--- // Valiant ENV
-loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Stefanuk12/ROBLOX/master/Universal/ValiantENV.lua"))()
-
--- // Vars
-local RenderStepped = RunService.RenderStepped
-local Heartbeat = RunService.Heartbeat
-local LocalPlayer = Players.LocalPlayer
-local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded.Wait(LocalPlayer.CharacterAdded)
-local Humanoid = Character.WaitForChild(Character, "Humanoid")
-local HumnaoidRootPart = Character.WaitForChild(Character, "HumanoidRootPart")
-local Backpack = LocalPlayer.Backpack
-local CurrentCamera = Workspace.CurrentCamera
-local Mouse = LocalPlayer.GetMouse(LocalPlayer)
-local MainEvent = game:GetService("ReplicatedStorage"):WaitForChild("MainEvent")
-getgenv().BypassFlyDaHood = false
-
--- // Base MT Vars + Funs
-local mt = getrawmetatable(game)
-local backupnamecall = mt.__namecall
-local backupnewindex = mt.__newindex
-local backupindex = mt.__index 
-setreadonly(mt, false)
-
--- // Silent Aim Vars
-local AimHacks = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Stefanuk12/ROBLOX/master/Universal/Experimental%20Silent%20Aim%20Module.lua"))()
-
--- // Da Hood Protections
-local function removeRagdolls()
-    for i,v in pairs(Character:WaitForChild("RagdollConstraints"):GetChildren()) do
-        v.Enabled = false
-    end
+-- Version: 3.2
+ 
+-- Instances:
+ 
+local ScreenGui = Instance.new("ScreenGui")
+local TextLabel = Instance.new("TextLabel")
+ 
+--Properties:
+ 
+ScreenGui.Parent = game.CoreGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ 
+TextLabel.Parent = ScreenGui
+TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TextLabel.BackgroundTransparency = 0.700
+TextLabel.Position = UDim2.new(0, 0, 0.3, 0)
+TextLabel.Size = UDim2.new(0, 151, 0, 31)
+TextLabel.Font = Enum.Font.ArialBold
+TextLabel.TextColor3 = Color3.fromRGB(155, 25, 65)
+TextLabel.TextScaled = true
+TextLabel.TextSize = 14.000
+TextLabel.TextWrapped = true
+ 
+_G.KEY = "q"
+_G.PART = "LowerTorso"
+_G.PRED = 0.043
+_G.Frame = Vector3.new(0,0.53,0)
+_G.AIR = -0.5
+_G.SHIT = 0.1
+ 
+ 
+local CC = game:GetService "Workspace".CurrentCamera
+local Plr
+local enabled = false
+local accomidationfactor = 0.155
+local mouse = game.Players.LocalPlayer:GetMouse()
+local placemarker = Instance.new("Part", game.Workspace)
+local guimain = Instance.new("Folder", game.CoreGui)
+ 
+getgenv().makemarker = function(Parent, Adornee, Color, Size, Size2)
+    local e = Instance.new("BillboardGui", Parent)
+    e.Name = "PP"
+    e.Adornee = Adornee
+    e.Size = UDim2.new(Size, Size2, Size, Size2)
+    e.AlwaysOnTop = true
+    local a = Instance.new("Frame", e)
+    a.Size = UDim2.new(4, 0, 4, 0)
+    a.BackgroundTransparency = 0.1
+    a.BackgroundColor3 = Color
+    local g = Instance.new("UICorner", a)
+    g.CornerRadius = UDim.new(50, 50)
+    return (e)
 end
-
-local function protections()
-    -- // Anti Fall/Ragdoll
-    Humanoid:SetStateEnabled(Enum.HumnaoidStateType.FallingDown, false)
-    Humanoid:SetStateEnabled(Enum.HumnaoidStateType.Ragdoll, false)
-    Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None -- Hide your name
-
-    for i,v in pairs(Character:GetDescendants()) do
-        if v:IsA("Accessory") or (v:IsA("Decal") and v.Name == 'face') then
-            v:Destroy()
-        elseif v:IsA("MeshPart") then
-            v.Color = Color3.fromRGB(255, 255, 255)
-        end
-    end
-
-    removeRagdolls()
-    Character:WaitForChild("BodyEffects").Movement.DescendantAdded:Connect(function(descendant)
+ 
+local data = game.Players:GetPlayers()
+function noob(player)
+    local character
+    repeat
         wait()
-        descendant:Destroy()
+    until player.Character
+    local handler = makemarker(guimain, player.Character:WaitForChild(_G.PART), Color3.fromRGB(255, 255, 255), 0.0, 0)
+    handler.Name = player.Name
+    player.CharacterAdded:connect(
+        function(Char)
+            handler.Adornee = Char:WaitForChild(_G.PART)
+        end
+    )
+ 
+    local TextLabel = Instance.new("TextLabel", handler)
+    TextLabel.BackgroundTransparency = 1
+    TextLabel.Position = UDim2.new(0, 0, 0, -50)
+    TextLabel.Size = UDim2.new(0, 100, 0, 100)
+    TextLabel.Font = Enum.Font.SourceSansSemibold
+    TextLabel.TextSize = 14
+    TextLabel.TextColor3 = Color3.new(1, 1, 1)
+    TextLabel.TextStrokeTransparency = 0
+    TextLabel.TextYAlignment = Enum.TextYAlignment.Bottom
+    TextLabel.Text = "Name: " .. player.Name
+    TextLabel.ZIndex = 10
+ 
+    spawn(
+        function()
+            while wait() do
+                if player.Character then
+                --TextLabel.Text = player.Name.." | Bounty: "..tostring(player:WaitForChild("leaderstats").Wanted.Value).." | "..tostring(math.floor(player.Character:WaitForChild("Humanoid").Health))
+                end
+            end
+        end
+    )
+end
+ 
+for i = 1, #data do
+    if data[i] ~= game.Players.LocalPlayer then
+        noob(data[i])
+    end
+end
+ 
+game.Players.PlayerAdded:connect(
+    function(Player)
+        noob(Player)
+    end
+)
+ 
+game.Players.PlayerRemoving:Connect(
+    function(player)
+        guimain[player.Name]:Destroy()
+    end
+)
+ 
+spawn(
+    function()
+        placemarker.Anchored = true
+        placemarker.CanCollide = false
+        placemarker.Size = Vector3.new(0.1, 0.1, 0.1)
+        placemarker.Transparency = _G.SHIT
+        makemarker(placemarker, placemarker, Color3.fromRGB(255, 255, 255), 0.20, 0)
+    end
+)
+ 
+mouse.KeyDown:Connect(
+    function(k)
+        if k ~= _G.KEY then
+            return
+        end
+        if enabled then
+            -- guimain[Plr.Name].Frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            enabled = false
+            TextLabel.TextColor3 = Color3.fromRGB(255, 20, 75)
+            TextLabel.Text = "NO TARGET"
+        else
+            --guimain[Plr.Name].Frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+            enabled = true
+            Plr = getClosestPlayerToCursor()
+            TextLabel.TextColor3 = Color3.fromRGB(12, 255, 0)
+            TextLabel.Text = Plr.Character.Humanoid.DisplayName
+        end
     end)
-end
-
-function toggleSeats(state)
-    for i,v in pairs(Workspace:GetDescendants()) do
-        if v:IsA("Seat") then
-            v.Disabled = state
-        end
-    end
-end
-
--- // Anti Fly Bypass
-coroutine.wrap(function()
-    while wait(0.1) do
-        if getgenv().BypassFlyDaHood then
-            for i,v in ipairs(getgc()) do 
-                if (debug.getinfo(v).name == 'crash') then
-                    getfenv(v).script:Destroy()
-                end
+ 
+function getClosestPlayerToCursor()
+    local closestPlayer
+    local shortestDistance = math.huge
+ 
+    for i, v in pairs(game.Players:GetPlayers()) do
+        if
+            v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Humanoid") and
+                v.Character.Humanoid.Health ~= 0 and
+                v.Character:FindFirstChild(_G.PART)
+         then
+            local pos = CC:WorldToViewportPoint(v.Character.PrimaryPart.Position)
+            local magnitude = (Vector2.new(pos.X, pos.Y) - Vector2.new(mouse.X, mouse.Y)).magnitude
+            if magnitude < shortestDistance then
+                closestPlayer = v
+                shortestDistance = magnitude
             end
         end
-	end
-end)()
-
--- // Toggle Anti Fly Bypass
-game:GetService("UserInputService").InputBegan:connect(function(inputObject, gameProcessedEvent)
-    if inputObject.KeyCode == Enum.KeyCode.F7 then
-        getgenv().BypassFlyDaHood = not getgenv().BypassFlyDaHood
-        print("Bypass TP Status: "..(getgenv().BypassFlyDaHood and "Enabled" or "Disabled"))
-    end 
-end)
-
--- // Teleport
-function Teleport(_CFrame, Status)
-    local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
-    if Status then
-        for i = 0, 1, 0.1 do
-            HumanoidRootPart.CFrame = HumanoidRootPart.CFrame:lerp(_CFrame, i)
-            wait()
+    end
+    return closestPlayer
+end
+ 
+game:GetService "RunService".Stepped:connect(
+    function()
+        if enabled and Plr.Character and Plr.Character:FindFirstChild(_G.PART) then
+            placemarker.CFrame =
+                CFrame.new(Plr.Character[_G.PART].Position + _G.Frame + (Plr.Character[_G.PART].Velocity * accomidationfactor))
+        else
+            placemarker.CFrame = CFrame.new(0, 9999, 0)
         end
+    end
+)
+ 
+local mt = getrawmetatable(game)
+local old = mt.__namecall
+setreadonly(mt, false)
+mt.__namecall =
+    newcclosure(
+    function(...)
+        local args = {...}
+        if enabled and getnamecallmethod() == "FireServer" and args[2] == "UpdateMousePos" then
+            args[3] = Plr.Character[_G.PART].Position+ _G.Frame + (Plr.Character[_G.PART].Velocity * accomidationfactor)
+            return old(unpack(args))
+        end
+        return old(...)
+    end
+)
+ 
+game.Players.LocalPlayer.Chatted:Connect(
+    function(Chat)
+        if Chat == "print" then
+            print(accomidationfactor)
+        end
+    end
+)
+ 
+game.Players.LocalPlayer.Chatted:Connect(
+    function(Chat)
+        if Chat == "Code:1029" then
+ 
+            _G.KEY = nil
+            _G.AIR = nil
+            _G.PART = nil
+            _G.PRED = nil
+            TextLabel.Visible = false
+ 
+ 
+        end
+    end
+)
+ 
+game.Players.LocalPlayer.Chatted:Connect(
+    function(Chat)
+        if Chat == "Code:1030" then
+ 
+        _G.KEY = "q"
+        _G.PART = "Humanoid"
+        _G.PRED = 0.12945
+        _G.Frame = Vector3.new(0,0.0,0)
+        _G.AIR = -0.5
+        _G.SHIT = 1
+ 
+ 
+        end
+    end
+)
+ 
+ 
+ 
+game.Players.LocalPlayer.Chatted:Connect(
+    function(Chat)
+        if Chat == "P+" then
+ 
+ 
+            _G.PRED = _G.PRED+0.001
+ 
+ 
+ 
+        end
+    end
+)
+ 
+game.Players.LocalPlayer.Chatted:Connect(
+    function(Chat)
+        if Chat == "P-" then
+ 
+            _G.PRED = _G.PRED-0.001
+ 
+ 
+ 
+        end
+    end
+)
+ 
+ 
+--[[
+while wait() do
+    local ping = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
+    local Value = tostring(ping)
+    local pingValue = Value:split(" ")
+    local PingNumber = pingValue[1]
+ 
+    accomidationfactor = PingNumber / 1000 + _G.PRED
+     if getClosestPlayerToCursor().Character.Humanoid.Jump == true and AimlockTarget.Character.Humanoid.FloorMaterial == Enum.Material.Air then
+        _G.PART = "RightFood"
+        accomidationfactor = _G.AIR
     else
-        HumanoidRootPart.CFrame = _CFrame
-    end
-end
-
--- // Metatable Stuff: Silent Aim + Bypass other protections
-mt.__namecall = newcclosure(function(...)
-    local method = getnamecallmethod()
-    local args = {...}
-    if method == "FireServer" then
-        local remoteName = tostring(args[1])
-        if remoteName == "MainEvent" then
-            if args[2] == "TeleportDetect" or args[2] == 'TeleportDetect' or args[2] == 'CHECKER' or args[2] == 'OneMoreTime' then
-                return nil
-            end
-            if args[2] == "MouseUpdatedPos" and typeof(args[3]) == "Vector3" and AimHacks.checkSilentAim() then
-                return AimHacks["Selected"].Character.Head.Position
-            end
-        end
-    end
-    
-    return backupnamecall(...)
-end)
-
-mt.__index = newcclosure(function(t, k)
-    if t == Mouse and (k == "Target" or k == "Hit") and AimHacks.checkSilentAim() then
-        local CPlayer = AimHacks["Selected"].Character.Head
-        return (k == "Target" and CPlayer or CPlayer.Position)
-    end
-    return backupindex(t, k)
-end)
-
--- // Script
-local Cashiers = Workspace:WaitForChild("Cashiers")
-local Drop = Workspace.Ignored:FindFirstChild("Drop")
-local ItemDrops = Workspace.Ignored:FindFirstChild("ItemsDrop")
-
-function collectMoney(Nearby, TPBack)
-    local SavedCFrame = HumanoidRootPart.CFrame
-    for i,v in pairs(Drop:GetDescendants()) do
-        if v:IsA("ClickDetecter") and v.Parent.Name == "MoneyDrop" then
-            if Nearby then
-                if LocalPlayer:DistanceFromCharacter(v.Parent.Position) < 20 then
-                    Teleport(v.Parent.CFrame, false)
-                    wait(0.2)
-                    fireclickdetector(v, 0)
-                    wait(0.2)
-                end
+        getClosestPlayerToCursor().Character:WaitForChild("Humanoid").StateChanged:Connect(function(old,new)
+            if new == Enum.HumanoidStateType.Freefall then
+                _G.PART = "RightFood"
+                accomidationfactor = _G.AIR
             else
-                Teleport(v.Parent.CFrame, false)
-                wait(1)
-                fireclickdetector(v, 0)
-                wait(2)
+                _G.PART = "UpperTorso"
+                accomidationfactor = PingNumber / 1000 + _G.PRED
             end
-        end
-    end
-    if TPBack then
-        wait(1)
-        Teleport(SavedCFrame, true)
+        end)
     end
 end
-
-function collectShoes()
-    local SavedCFrame = HumanoidRootPart.CFrame
-    for i,v in pairs(Drop:GetDescendants()) do
-        if v:IsA("ClickDetector") and v.Parent.Name == "MeshPart" then
-            Teleport(v.Parent.CFrame, false)
-            wait(1)
-            fireclickdetector(v, 0)
-            wait(2)
-        end
-    end
-    wait(1)
-    Teleport(SavedCFrame, true)
+ 
+]]
+ 
+while wait() do
+    local ping = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
+    local Value = tostring(ping)
+    local pingValue = Value:split(" ")
+    local PingNumber = pingValue[1]
+ 
+ accomidationfactor = PingNumber / 1000 + _G.PRED
 end
-
-function collectTools()
-    local SavedCFrame = HumanoidRootPart.CFrame
-    for i,v in pairs(ItemDrops:GetDescendants()) do
-        if v:IsA("Tool") then
-            for a,x in pairs(v:GetDescendants()) do
-                if x:IsA("TouchTransmitter") then
-                    Teleport(v.Parent.CFrame, false)
-                end
-            end
-        end
-    end
-    wait(1)
-    Teleport(SavedCFrame, true)
-end
-
-function collectCashiers()
-    removeRagdolls()
-    local SavedCFrame = HumanoidRootPart.CFrame
-    for i,v in next, Workspace:WaitForChild("Cashiers"):GetChildren() do
-        if v:FindFirstChildWhichIsA("Humanoid").Health > 0 then
-            local targetCFrame = lootPositions[tostring(i)]
-            Teleport(targetCFrame, false)
-            if Backpack:FindFirstChild("Combat") then Humanoid:EquipTool(Backpack.Combat) end
-            repeat VirtualUser:ClickButton1(Vector2.new()) wait() until v.Humanoid.Health <= 0
-            for i = 1, 3 do
-                collectMoney(true)
-                HumanoidRootPart.CFrame = targetCFrame
-                wait(1)
-            end
-        end
-    end
-    wait(1)
-    Teleport(SavedCFrame, true)
-end
-
-protections()
-LocalPlayer.CharacterAdded:Connect(protections())
